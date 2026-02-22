@@ -1,10 +1,31 @@
 import type { Command } from './types';
 import { portfolioData } from './portfolio';
 
+// Track current section for Pip-Boy style navigation
+let currentSection = '';
+
+export const getCurrentSection = (): string => currentSection;
+
+export const setCurrentSection = (section: string): void => {
+  currentSection = section;
+};
+
+// Check if we should navigate (clear + show) vs just append
+export const shouldNavigate = (section: string): boolean => {
+  if (currentSection === section) {
+    return true; // Same section clicked - refresh
+  }
+  return true; // Different section - always navigate
+};
+
+// Magic string to indicate navigation (clear + display)
+export const NAVIGATE_PREFIX = '__NAV__';
+
 const formatSkills = (): string => {
-  let output = '\n';
+  let output = '[SKILLS DATABASE]\n';
+  output += '═'.repeat(40) + '\n\n';
   portfolioData.skills.forEach(category => {
-    output += `[${category.category}]\n`;
+    output += `[${category.category.toUpperCase()}]\n`;
     output += category.items.map(item => `  ► ${item}`).join('\n');
     output += '\n\n';
   });
@@ -12,27 +33,29 @@ const formatSkills = (): string => {
 };
 
 const formatProjects = (): string => {
-  let output = '\n';
+  let output = '[PROJECT ARCHIVE]\n';
+  output += '═'.repeat(40) + '\n\n';
   portfolioData.projects.forEach((project, index) => {
-    output += `[${index + 1}] ${project.name}\n`;
+    output += `[ENTRY ${String(index + 1).padStart(2, '0')}] ${project.name.toUpperCase()}\n`;
     output += `    ${project.description}\n`;
-    output += `    Tech: ${project.technologies.join(', ')}\n`;
-    if (project.link) output += `    Demo: ${project.link}\n`;
-    if (project.github) output += `    Code: ${project.github}\n`;
+    output += `    TECH: ${project.technologies.join(', ')}\n`;
+    if (project.link) output += `    DEMO: ${project.link}\n`;
+    if (project.github) output += `    CODE: ${project.github}\n`;
     output += '\n';
   });
   return output;
 };
 
 const formatExperience = (): string => {
-  let output = '\n';
+  let output = '[EMPLOYMENT HISTORY]\n';
+  output += '═'.repeat(40) + '\n\n';
   portfolioData.experience.forEach(job => {
-    output += `[${job.company}]\n`;
-    output += `  Position: ${job.position}\n`;
-    output += `  Period:   ${job.period}\n`;
-    output += '  Highlights:\n';
+    output += `[${job.company.toUpperCase()}]\n`;
+    output += `  POSITION: ${job.position}\n`;
+    output += `  PERIOD:   ${job.period}\n`;
+    output += '  HIGHLIGHTS:\n';
     job.description.forEach(desc => {
-      output += `    • ${desc}\n`;
+      output += `    ■ ${desc}\n`;
     });
     output += '\n';
   });
@@ -40,31 +63,33 @@ const formatExperience = (): string => {
 };
 
 const formatContact = (): string => {
-  return `
+  return `[COMMUNICATION PROTOCOLS]
+${'═'.repeat(40)}
+
 [PERSONAL CONTACT]
-  Email:    ${portfolioData.contact.email}
-  Location: ${portfolioData.personal.location}
+  EMAIL:    ${portfolioData.contact.email}
+  LOCATION: ${portfolioData.personal.location}
 
 [ONLINE PRESENCE]
-  GitHub:   ${portfolioData.contact.github}
-  LinkedIn: ${portfolioData.contact.linkedin || 'N/A'}
-  Website:  ${portfolioData.contact.website || 'N/A'}
+  GITHUB:   ${portfolioData.contact.github}
+  LINKEDIN: ${portfolioData.contact.linkedin || 'N/A'}
+  WEBSITE:  ${portfolioData.contact.website || 'N/A'}
 `;
 };
 
 const formatAbout = (): string => {
-  return `
-[NAME]    ${portfolioData.personal.name}
-[TITLE]   ${portfolioData.personal.title}
-[EMAIL]   ${portfolioData.personal.email}
+  return `[VAULT DWELLER PROFILE]
+${'═'.repeat(40)}
 
-[SUMMARY]
+[NAME]     ${portfolioData.personal.name}
+[TITLE]    ${portfolioData.personal.title}
+[EMAIL]    ${portfolioData.personal.email}
+
+[BIOGRAPHY]
 ${portfolioData.personal.summary}
 
-Type 'skills' to see technical skills.
-Type 'projects' to view portfolio projects.
-Type 'experience' for work history.
-Type 'contact' for contact information.
+Use the menu below to access different
+sections of the database.
 `;
 };
 
@@ -112,6 +137,15 @@ const asciiArt = {
   `
 };
 
+// Navigation commands that replace content instead of appending
+const navigationCommands = ['about', 'skills', 'projects', 'experience', 'contact'];
+
+// Wrap command output with navigation indicator for section commands
+const navigateTo = (section: string, content: string): string => {
+  setCurrentSection(section);
+  return `${NAVIGATE_PREFIX}${section}|${content}`;
+};
+
 export const commands: Command[] = [
   {
     name: 'help',
@@ -121,27 +155,27 @@ export const commands: Command[] = [
   {
     name: 'about',
     description: 'Display personal information',
-    execute: () => formatAbout()
+    execute: () => navigateTo('about', formatAbout())
   },
   {
     name: 'skills',
     description: 'List technical skills',
-    execute: () => formatSkills()
+    execute: () => navigateTo('skills', formatSkills())
   },
   {
     name: 'projects',
     description: 'View portfolio projects',
-    execute: () => formatProjects()
+    execute: () => navigateTo('projects', formatProjects())
   },
   {
     name: 'experience',
     description: 'Show work history',
-    execute: () => formatExperience()
+    execute: () => navigateTo('experience', formatExperience())
   },
   {
     name: 'contact',
     description: 'Display contact information',
-    execute: () => formatContact()
+    execute: () => navigateTo('contact', formatContact())
   },
   {
     name: 'clear',

@@ -1,19 +1,42 @@
 ---
-// Terminal header with system info
+// Pip-Boy Style Header
 ---
 
 <header class="terminal-header">
-  <div class="header-top">
-    <div class="header-branding glow-text">
-      ROBCO INDUSTRIES (TM) TERMLINK
+  <div class="header-stats">
+    <div class="stat-item">
+      <span class="stat-label">HP</span>
+      <div class="stat-bar">
+        <div class="stat-fill hp-fill"></div>
+      </div>
+      <span class="stat-value">100/100</span>
     </div>
-    <div class="header-status">
-      <span id="connection-status">● CONNECTED</span>
+    <div class="stat-item">
+      <span class="stat-label">AP</span>
+      <div class="stat-bar">
+        <div class="stat-fill ap-fill"></div>
+      </div>
+      <span class="stat-value">100/100</span>
     </div>
   </div>
-  <div class="header-info">
-    <span>PERSONAL PORTFOLIO SYSTEM v1.0.77</span>
-    <span id="datetime"></span>
+  <div class="header-main">
+    <div class="header-branding glow-text">
+      PIP-BOY 3000 MARK IV
+    </div>
+    <div class="header-sub">
+      <span id="connection-status" class="status-indicator">● ONLINE</span>
+      <span id="datetime" class="datetime"></span>
+    </div>
+  </div>
+  <div class="header-stats right">
+    <div class="stat-item">
+      <span class="stat-label">LVL</span>
+      <span class="stat-value level">50</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-label">XP</span>
+      <span class="stat-value">99%</span>
+    </div>
   </div>
 </header>
 
@@ -44,33 +67,97 @@
 
 <style>
   .terminal-header {
-    padding: 15px 20px;
+    padding: 12px 20px;
     border-bottom: 2px solid var(--terminal-border);
     background: linear-gradient(
       to bottom,
       rgba(51, 255, 0, 0.1),
       transparent
     );
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: 20px;
   }
 
-  .header-top {
+  .header-stats {
     display: flex;
-    justify-content: space-between;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .header-stats.right {
+    align-items: flex-end;
+  }
+
+  .stat-item {
+    display: flex;
     align-items: center;
-    margin-bottom: 8px;
+    gap: 8px;
+    font-size: 0.85rem;
+  }
+
+  .stat-label {
+    color: var(--terminal-text-dim);
+    min-width: 25px;
+    font-weight: bold;
+  }
+
+  .stat-bar {
+    width: 60px;
+    height: 10px;
+    border: 1px solid var(--terminal-border);
+    background: rgba(0, 0, 0, 0.3);
+    position: relative;
+  }
+
+  .stat-fill {
+    height: 100%;
+    background: var(--terminal-text);
+    transition: width 0.3s;
+  }
+
+  .hp-fill {
+    width: 100%;
+  }
+
+  .ap-fill {
+    width: 100%;
+  }
+
+  .stat-value {
+    color: var(--terminal-text);
+    font-family: 'VT323', monospace;
+  }
+
+  .stat-value.level {
+    color: var(--terminal-text);
+    font-weight: bold;
+  }
+
+  .header-main {
+    text-align: center;
   }
 
   .header-branding {
-    font-size: 1.3rem;
-    letter-spacing: 2px;
+    font-size: 1.4rem;
+    letter-spacing: 3px;
+    margin-bottom: 4px;
   }
 
-  .header-status {
-    font-size: 0.9rem;
+  .header-sub {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    font-size: 0.85rem;
+    color: var(--terminal-text-dim);
+  }
+
+  .status-indicator {
     color: var(--terminal-text);
   }
 
-  .header-status span::before {
+  .status-indicator::before {
     content: '';
     display: inline-block;
     width: 8px;
@@ -86,14 +173,34 @@
     50% { opacity: 0.5; }
   }
 
-  .header-info {
-    display: flex;
-    justify-content: space-between;
-    font-size: 0.9rem;
-    color: var(--terminal-text-dim);
+  .datetime {
+    font-family: 'VT323', monospace;
+    letter-spacing: 1px;
   }
 
-  #datetime {
-    font-family: 'VT323', monospace;
+  /* Mobile adjustments */
+  @media (max-width: 768px) {
+    .terminal-header {
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: auto auto;
+      gap: 10px;
+    }
+
+    .header-main {
+      grid-column: 1 / -1;
+      order: -1;
+    }
+
+    .header-branding {
+      font-size: 1.1rem;
+    }
+
+    .stat-bar {
+      width: 40px;
+    }
+
+    .header-stats.right .stat-item:first-child {
+      flex-direction: row-reverse;
+    }
   }
 </style>
