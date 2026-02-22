@@ -1,0 +1,174 @@
+---
+// Boot sequence component for the terminal
+---
+
+<div id="boot-sequence" class="boot-sequence">
+  <div class="boot-content">
+    <div class="boot-line glow-text">ROBCO INDUSTRIES (TM) TERMLINK PROTOCOL</div>
+    <div class="boot-line">COPYRIGHT 2075-2077 ROBCO INDUSTRIES</div>
+    <div class="boot-line spacer">-</div>
+    <div id="boot-messages"></div>
+    <div class="boot-line spacer">-</div>
+    <div id="boot-progress" class="boot-line" style="display: none;">
+      <span class="progress-label">LOADING SYSTEM</span>
+      <span class="progress-bar">[<span id="progress-fill"></span>]</span>
+    </div>
+  </div>
+</div>
+
+<style>
+  .boot-sequence {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: var(--terminal-bg);
+    z-index: 100;
+    padding: 20px;
+    overflow: hidden;
+  }
+
+  .boot-content {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+  }
+
+  .boot-line {
+    font-size: 1.2rem;
+    margin: 4px 0;
+    opacity: 0;
+    animation: fadeIn 0.1s ease-out forwards;
+  }
+
+  .spacer {
+    color: var(--terminal-text-dim);
+  }
+
+  #boot-messages {
+    text-align: left;
+    max-width: 400px;
+  }
+
+  .boot-message {
+    margin: 2px 0;
+    font-size: 1rem;
+    opacity: 0;
+    animation: fadeIn 0.05s ease-out forwards;
+  }
+
+  .boot-message.success {
+    color: var(--terminal-text);
+  }
+
+  .boot-message.checking::before {
+    content: '> ';
+  }
+
+  .boot-message.done::before {
+    content: '> ';
+    color: var(--terminal-text);
+  }
+
+  .progress-label {
+    margin-right: 10px;
+  }
+
+  .progress-bar {
+    font-family: monospace;
+  }
+
+  #progress-fill {
+    display: inline-block;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  .boot-complete {
+    animation: fadeOut 0.5s ease-out forwards;
+  }
+
+  @keyframes fadeOut {
+    from { opacity: 1; }
+    to { opacity: 0; visibility: hidden; }
+  }
+</style>
+
+<script>
+  const bootMessages = [
+    { text: 'Initializing boot sequence...', delay: 100 },
+    { text: 'Loading BIOS v3.11...', delay: 150 },
+    { text: 'Memory Test: 640K OK', delay: 100 },
+    { text: 'Detecting primary storage...', delay: 200 },
+    { text: 'Loading kernel modules...', delay: 150 },
+    { text: 'Mounting file systems...', delay: 100 },
+    { text: 'Initializing network protocols...', delay: 200 },
+    { text: 'Loading user profile...', delay: 150 },
+    { text: 'Starting terminal services...', delay: 100 },
+    { text: 'System ready.', delay: 100 }
+  ];
+
+  async function runBootSequence() {
+    const messagesContainer = document.getElementById('boot-messages');
+    const progressBar = document.getElementById('boot-progress');
+    const progressFill = document.getElementById('progress-fill');
+    const bootSequence = document.getElementById('boot-sequence');
+
+    if (!messagesContainer || !progressBar || !progressFill || !bootSequence) return;
+
+    // Show boot messages
+    for (let i = 0; i < bootMessages.length; i++) {
+      const msg = bootMessages[i];
+      const div = document.createElement('div');
+      div.className = 'boot-message checking';
+      div.textContent = msg.text;
+      div.style.animationDelay = '0ms';
+      messagesContainer.appendChild(div);
+      
+      await sleep(msg.delay);
+      
+      div.classList.remove('checking');
+      div.classList.add('done');
+    }
+
+    // Show progress bar
+    await sleep(200);
+    progressBar.style.display = 'block';
+    
+    // Animate progress
+    const progressSteps = 20;
+    for (let i = 0; i <= progressSteps; i++) {
+      const fill = '='.repeat(i) + ' '.repeat(progressSteps - i);
+      progressFill.textContent = fill;
+      await sleep(50);
+    }
+
+    await sleep(300);
+    
+    // Fade out boot sequence
+    bootSequence.classList.add('boot-complete');
+    
+    // Dispatch event when boot is complete
+    setTimeout(() => {
+      window.dispatchEvent(new CustomEvent('bootComplete'));
+    }, 500);
+  }
+
+  function sleep(ms: number): Promise<void> {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
+
+  // Start boot sequence when DOM is ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', runBootSequence);
+  } else {
+    runBootSequence();
+  }
+</script>

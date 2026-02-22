@@ -1,0 +1,50 @@
+---
+import BootSequence from '../BootSequence.astro';
+import TerminalHeader from './TerminalHeader.astro';
+import TerminalScreen from './TerminalScreen.astro';
+---
+
+<div id="terminal" class="terminal-wrapper">
+  <BootSequence />
+  <div id="terminal-main" class="terminal-main" style="display: none;">
+    <TerminalHeader />
+    <TerminalScreen />
+  </div>
+</div>
+
+<script>
+  // Listen for boot complete event
+  window.addEventListener('bootComplete', () => {
+    const terminalMain = document.getElementById('terminal-main');
+    if (terminalMain) {
+      terminalMain.style.display = 'block';
+      terminalMain.classList.add('screen-on');
+      
+      // Focus input after boot
+      setTimeout(() => {
+        const input = document.getElementById('terminal-input') as HTMLInputElement;
+        if (input) input.focus();
+      }, 500);
+    }
+  });
+</script>
+
+<style>
+  .terminal-wrapper {
+    width: 100%;
+    height: 100%;
+    position: relative;
+  }
+
+  .terminal-main {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    opacity: 0;
+  }
+
+  .terminal-main.screen-on {
+    opacity: 1;
+  }
+</style>

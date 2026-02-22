@@ -1,0 +1,99 @@
+---
+// Terminal header with system info
+---
+
+<header class="terminal-header">
+  <div class="header-top">
+    <div class="header-branding glow-text">
+      ROBCO INDUSTRIES (TM) TERMLINK
+    </div>
+    <div class="header-status">
+      <span id="connection-status">● CONNECTED</span>
+    </div>
+  </div>
+  <div class="header-info">
+    <span>PERSONAL PORTFOLIO SYSTEM v1.0.77</span>
+    <span id="datetime"></span>
+  </div>
+</header>
+
+<script>
+  function updateDateTime() {
+    const dateEl = document.getElementById('datetime');
+    if (dateEl) {
+      const now = new Date();
+      const date = now.toLocaleDateString('en-US', { 
+        year: 'numeric', 
+        month: '2-digit', 
+        day: '2-digit' 
+      });
+      const time = now.toLocaleTimeString('en-US', { 
+        hour12: false,
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+      });
+      dateEl.textContent = `${date} ${time}`;
+    }
+  }
+
+  // Update immediately and then every second
+  updateDateTime();
+  setInterval(updateDateTime, 1000);
+</script>
+
+<style>
+  .terminal-header {
+    padding: 15px 20px;
+    border-bottom: 2px solid var(--terminal-border);
+    background: linear-gradient(
+      to bottom,
+      rgba(51, 255, 0, 0.1),
+      transparent
+    );
+  }
+
+  .header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+
+  .header-branding {
+    font-size: 1.3rem;
+    letter-spacing: 2px;
+  }
+
+  .header-status {
+    font-size: 0.9rem;
+    color: var(--terminal-text);
+  }
+
+  .header-status span::before {
+    content: '';
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    background-color: var(--terminal-text);
+    border-radius: 50%;
+    margin-right: 6px;
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }
+
+  .header-info {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.9rem;
+    color: var(--terminal-text-dim);
+  }
+
+  #datetime {
+    font-family: 'VT323', monospace;
+  }
+</style>

@@ -1,0 +1,313 @@
+@import "tailwindcss";
+
+/* Google Fonts - VT323 for terminal look */
+@import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
+
+/* CSS Variables for terminal colors */
+:root {
+  --terminal-bg: #0a0a0a;
+  --terminal-bg-rgb: 10, 10, 10;
+  --terminal-green: #33ff00;
+  --terminal-green-dim: #1a8000;
+  --terminal-green-glow: rgba(51, 255, 0, 0.5);
+  --terminal-amber: #ffb000;
+  --terminal-amber-glow: rgba(255, 176, 0, 0.5);
+  --terminal-text: #33ff00;
+  --terminal-text-dim: #1a8000;
+  --terminal-border: #33ff00;
+  --terminal-border-dim: #1a8000;
+  --scanline-color: rgba(0, 0, 0, 0.5);
+  --crt-flicker-opacity: 0.02;
+}
+
+/* Theme variants - can switch between green and amber */
+[data-theme="amber"] {
+  --terminal-text: #ffb000;
+  --terminal-text-dim: #805500;
+  --terminal-border: #ffb000;
+  --terminal-border-dim: #805500;
+}
+
+/* Base styles */
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+body {
+  font-family: 'VT323', monospace;
+  background-color: #000;
+  color: var(--terminal-text);
+  font-size: 18px;
+  line-height: 1.4;
+}
+
+/* Terminal container */
+.terminal-container {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  background: radial-gradient(
+    ellipse at center,
+    #1a1a1a 0%,
+    #000000 100%
+  );
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+/* Main terminal screen */
+.terminal-screen {
+  position: relative;
+  width: 100%;
+  max-width: 1000px;
+  height: 100%;
+  max-height: 700px;
+  background-color: var(--terminal-bg);
+  border: 2px solid var(--terminal-border);
+  border-radius: 10px;
+  box-shadow: 
+    0 0 20px var(--terminal-green-glow),
+    inset 0 0 20px rgba(51, 255, 0, 0.1);
+  overflow: hidden;
+}
+
+/* Screen curvature effect */
+.terminal-screen::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(
+    ellipse at center,
+    transparent 0%,
+    transparent 70%,
+    rgba(0, 0, 0, 0.4) 100%
+  );
+  pointer-events: none;
+  z-index: 10;
+}
+
+/* Scanlines overlay */
+.scanlines {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  z-index: 5;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(0, 0, 0, 0.15),
+    rgba(0, 0, 0, 0.15) 1px,
+    transparent 1px,
+    transparent 2px
+  );
+}
+
+/* CRT flicker animation */
+@keyframes flicker {
+  0% { opacity: 0.98; }
+  5% { opacity: 0.95; }
+  10% { opacity: 0.98; }
+  15% { opacity: 0.96; }
+  20% { opacity: 0.98; }
+  50% { opacity: 0.97; }
+  80% { opacity: 0.98; }
+  90% { opacity: 0.96; }
+  100% { opacity: 0.98; }
+}
+
+.crt-flicker {
+  animation: flicker 0.15s infinite;
+}
+
+/* Screen turn on animation */
+@keyframes screenOn {
+  0% {
+    transform: scaleY(0.001);
+    opacity: 0;
+    filter: brightness(0);
+  }
+  50% {
+    transform: scaleY(0.001);
+    opacity: 1;
+    filter: brightness(2);
+  }
+  100% {
+    transform: scaleY(1);
+    opacity: 1;
+    filter: brightness(1);
+  }
+}
+
+.screen-on {
+  animation: screenOn 0.4s ease-out forwards;
+}
+
+/* Text glow effect */
+.glow-text {
+  text-shadow: 
+    0 0 5px var(--terminal-green-glow),
+    0 0 10px var(--terminal-green-glow);
+}
+
+[data-theme="amber"] .glow-text {
+  text-shadow: 
+    0 0 5px var(--terminal-amber-glow),
+    0 0 10px var(--terminal-amber-glow);
+}
+
+/* Blinking cursor */
+@keyframes blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
+.cursor {
+  display: inline-block;
+  width: 10px;
+  height: 1.2em;
+  background-color: var(--terminal-text);
+  animation: blink 1s step-end infinite;
+  vertical-align: text-bottom;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--terminal-bg);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--terminal-border-dim);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--terminal-border);
+}
+
+/* Terminal content area */
+.terminal-content {
+  position: relative;
+  z-index: 1;
+  height: 100%;
+  overflow-y: auto;
+  padding: 20px;
+}
+
+/* Header styling */
+.terminal-header {
+  border-bottom: 1px solid var(--terminal-border-dim);
+  padding-bottom: 10px;
+  margin-bottom: 15px;
+}
+
+/* Input line styling */
+.terminal-input-line {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.prompt {
+  color: var(--terminal-text);
+  white-space: nowrap;
+}
+
+/* Command output styling */
+.output-line {
+  margin: 4px 0;
+  word-wrap: break-word;
+}
+
+.error-line {
+  color: #ff3333;
+  text-shadow: 0 0 5px rgba(255, 51, 51, 0.5);
+}
+
+.success-line {
+  color: var(--terminal-text);
+}
+
+/* Menu items */
+.menu-item {
+  cursor: pointer;
+  padding: 2px 8px;
+  transition: all 0.2s;
+}
+
+.menu-item:hover {
+  background-color: var(--terminal-text);
+  color: var(--terminal-bg);
+}
+
+.menu-item.selected {
+  background-color: var(--terminal-text);
+  color: var(--terminal-bg);
+}
+
+/* Typewriter effect */
+@keyframes typing {
+  from { width: 0; }
+  to { width: 100%; }
+}
+
+.typewriter {
+  overflow: hidden;
+  white-space: nowrap;
+  animation: typing 0.05s steps(1, end);
+}
+
+/* Boot text animation */
+@keyframes bootText {
+  0% { opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  body {
+    font-size: 14px;
+  }
+  
+  .terminal-container {
+    padding: 10px;
+  }
+  
+  .terminal-content {
+    padding: 15px;
+  }
+}
+
+/* Print styles - hide effects when printing */
+@media print {
+  .scanlines,
+  .crt-flicker {
+    display: none;
+  }
+  
+  .terminal-screen {
+    box-shadow: none;
+    border: 1px solid #000;
+  }
+}
